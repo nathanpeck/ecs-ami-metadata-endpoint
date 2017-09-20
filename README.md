@@ -67,5 +67,7 @@ __3. Access the metadata in the bucket.__
 
 Return to the CloudFormation stack that you just created and check the outputs for the stack. There will an output called "URL" which is the public URL of the bucket containing the metadata. Access this URL as you see fit!
 
+![find bucket url](./images/find-bucket-url.png)
+
 ![fetch metadata](./images/fetch-metadata.png)
 
