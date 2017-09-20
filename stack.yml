@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.json
+  SaveEcsMetadataRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [lambda.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Policies:
+        - PolicyName: BasicLambdaExection
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: logs:CreateLogGroup
+                Resource: arn:aws:logs:*
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream,
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*
+        - PolicyName: AccessS3Bucket
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: !Join ['', ['arn:aws:s3:::', !Ref 'Bucket', '/*']]
+  SaveEcsMetadata:
+    Type: AWS::Lambda::Function
+    DependsOn: Bucket
+    Properties:
+      Description: Lambda function for saving ECS AMI metadata into an S3 Bucket
+      Code:
+        ZipFile: !Sub |
+            var aws = require('aws-sdk');
+            var S3 = new aws.S3();
+            exports.handler = (event, context, callback) => {
+                var message = event.Records[0].Sns.Message;
+                S3.putObject({
+                    Bucket: "${Bucket}",
+                    Body: message,
+                    Key: "index.json",
+                    ContentType: "application/json",
+                    ACL: "public-read"
+                }, callback);
+            };
+      Role: !GetAtt ['SaveEcsMetadataRole', 'Arn']
+      Handler: index.handler
+      Runtime: nodejs6.10
+      MemorySize: 128
+  SNSPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SaveEcsMetadata
+      Principal: sns.amazonaws.com
+      SourceAccount: 177427601217
+      SourceArn: arn:aws:sns:us-east-1:177427601217:ecs-optimized-amazon-ami-update
+  Subscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt ['SaveEcsMetadata', 'Arn']
+      Protocol: lambda
+      TopicArn: arn:aws:sns:us-east-1:177427601217:ecs-optimized-amazon-ami-update
+Outputs:
+  URL:
+    Description: The URL of the bucket hosting the metadata
+    Value: !GetAtt ['Bucket', 'WebsiteURL']
+
+
