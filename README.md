@@ -25,7 +25,7 @@ aws cloudformation deploy \
 
 __2. Bootstrap the Bucket__
 
-Because the Lambda only gets invoked when there is an update to the metadata your endpoint will start out with no data, unless you manually bootstrap it with the current metadata. You can copy the metadata from the example endpoint above, or manually construct the metadata based on the [AMI info in the official documentation](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html).
+Because the Lambda only gets invoked when there is an update to the metadata your endpoint will start out with no data, unless you manually bootstrap it with the current metadata. You can copy the metadata from the example endpoint above, or for extra security manually construct the metadata yourself based on the [AMI info in the official documentation](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html).
 
 Go to the Lambda dashboard, select the lambda function that was created, and click the "Test" button.
 
