@@ -1,6 +1,10 @@
 # ECS AMI Metadata Endpoint
 
-## Why?
+# Deprecated!
+
+_As of April 10, 2018 AWS has added an official method for fetching the latest ECS optimized AMI details programmatically, so it is no longer necessary to host your own endpoint to get the AMI details. [Read the release announcment](https://aws.amazon.com/about-aws/whats-new/2018/04/amazon-ecs-provides-ecs-optimized-ami-metadata-via-ssm-parameter/) for an explanation and links to the documentation._
+
+## Why was this made?
 
 AWS supplies a way to subscribe to an SNS topic that will notify you whenever there is an update to the official ECS AMI, however it can be challenging to figure out how to use this resource. This CloudFormation template demonstrates how to subscribe to the SNS topic, and connect a Lambda function to the topic to run logic in response to updates to the official ECS AMI. The Lambda function configured in this demo saves the ECS metadata into an S3 bucket that hosts a website endpoint that allows you to query the metadata whenever you want. This can be useful for infrastructure automation, particularly if you want to ensure that your infrastructure code is always using the most up to date version of the ECS AMI.
 
